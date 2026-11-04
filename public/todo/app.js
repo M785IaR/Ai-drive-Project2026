@@ -152,4 +152,3 @@ document.addEventListener('DOMContentLoaded', () => {
 
   loadTodos();
 });
-//
