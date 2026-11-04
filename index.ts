@@ -1,31 +1,28 @@
 import express, { Request, Response } from 'express';
 import path from 'path';
 import { pool } from './db'; // db.tsで作成したNeonへの接続を利用する
-
+import todoRouter from './src/apps/todo/todoRouter'; // ★ Todo用ルーターをインポート
 
 const app = express(); // Expressアプリケーションを作成
 const port: number = 3000; // ローカルで使用するポート番号
 
-
 // ------------------------------
 // Expressの基本設定
 // ------------------------------
+app.use(express.json()); // ★ JSONデータを受け取れるようにする（Fetch/API通信に必須）
 app.use(express.urlencoded({ extended: true })); // フォームから送信されたデータを受け取れるようにする
 app.use(express.static(path.join(process.cwd(), 'public'))); // CSSや画像などの静的ファイルを公開する
 app.set('view engine', 'ejs'); // テンプレートエンジンにEJSを設定
 app.set('views', path.join(process.cwd(), 'views')); // EJSファイルを保存するフォルダーを指定
 
-
 // ------------------------------
 // ルーティング
 // ------------------------------
-
 
 // 「/」にアクセスされたときの処理
 app.get('/', (req: Request, res: Response): void => {
   res.render('index');
 });
-
 
 // Neonへの接続をSELECT文で確認する
 app.get('/api/db-check', async (_req, res) => {
@@ -41,17 +38,6 @@ app.get('/api/db-check', async (_req, res) => {
   }
 });
 
-
-
-// ------------------------------
-// サーバー起動
-// ------------------------------
-
-
-app.listen(port, (): void => {
-  console.log(`Server started: http://localhost:${port}`);
-});
-
 type Product = { id: number; name: string; price: number };
 
 app.get('/db-sample', async (_req, res) => {
@@ -64,4 +50,14 @@ app.get('/db-sample', async (_req, res) => {
     console.error('商品一覧の取得に失敗しました', error);
     res.status(503).send('商品一覧を表示できません');
   }
+});
+
+// ★ Todo機能のルートを登録 (/todo と /api/v1/todos が有効化されます)
+app.use('/', todoRouter);
+
+// ------------------------------
+// サーバー起動
+// ------------------------------
+app.listen(port, (): void => {
+  console.log(`Server started: http://localhost:${port}`);
 });
