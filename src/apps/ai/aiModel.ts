@@ -1,4 +1,4 @@
-import db from '../../config/database'; // 既存の PostgreSQL (pg Pool/Client) 接続構成を参照
+import { pool } from '../../../db'; // 名前付きエクスポートの pool を読み込む
 
 export interface AiQaLog {
   id: number;
@@ -38,8 +38,8 @@ export class AiModel {
     `;
 
     try {
-      // 既存の db.query (pg Pool または Client) を呼び出し
-      const result = await db.query(sql, [limit]);
+      // pool.query を呼び出し
+      const result = await pool.query(sql, [limit]);
       const rows: AiQaLog[] = result.rows || [];
 
       if (rows.length === 0) {
@@ -79,7 +79,8 @@ export class AiModel {
     ];
 
     try {
-      const result = await db.query(sql, values);
+      // pool.query を呼び出し
+      const result = await pool.query(sql, values);
       const row: AiQaLog = result.rows[0];
 
       return {

@@ -39,3 +39,9 @@
 - **工程**：TASK-02の完了確認およびTASK-03の新規コード反映
 - **自分の確認**：TASK-02（履歴API）の200 OK動作を確認。TASK-03（質問受付API）のコード反映まで完了。次回は動作検証から再開。
 - **対応ID**：TASK-02, TASK-03
+
+- **工程**：TASK-03 質問受付・模擬回答生成およびDB保存APIの実装と検証
+- **AIへの依頼**：`POST /api/ai/ask` の実装（バリデーション、模擬回答生成、Neon DBへのINSERT処理）
+- **自分の確認**：DevToolsで `POST /api/ai/ask` を実行し `201 Created` が返ること、続いて `GET /api/ai/history` を実行し `items` に保存したデータ（1件）が反映されていることを実測確認。
+- **対応ID**：TASK-03
+
