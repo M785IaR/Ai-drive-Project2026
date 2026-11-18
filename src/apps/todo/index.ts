@@ -2,6 +2,7 @@ import express from 'express';
 import path from 'path';
 import { pool } from '../../../db'; // db.tsが直下の場合: '../db'
 import todoRouter from './todoRouter';
+import { aiRouter, aiViewRouter } from '../ai/aiRouter'; // ※ファイルの場所に合わせてパスを調整してください
 
 const app = express();
 
@@ -31,5 +32,9 @@ app.get('/api/db-check', async (req, res) => {
 
 // --- Todo 機能ルートの登録 ---
 app.use('/', todoRouter);
+
+// --- AI 機能ルートの登録 ---
+app.use('/ai', aiViewRouter);
+app.use('/api/ai', aiRouter);
 
 export default app;

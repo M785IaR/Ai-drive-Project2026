@@ -1,4 +1,4 @@
-import { Router } from 'express';
+import { Router, Request, Response } from 'express';
 import { AiController } from './aiController';
 
 const router = Router();
@@ -13,3 +13,9 @@ router.get('/history', AiController.getHistory);
 router.post('/ask', AiController.postAsk);
 
 export const aiRouter = router;
+
+// 画面表示用ルーター (/ai)
+export const aiViewRouter = Router();
+aiViewRouter.get('/', (_req: Request, res: Response) => {
+  res.render('ai/index');
+});
