@@ -1,4 +1,5 @@
 import { Router, Request, Response } from 'express';
+import path from 'path';
 import { AiController } from './aiController';
 
 const router = Router();
@@ -17,5 +18,5 @@ export const aiRouter = router;
 // 画面表示用ルーター (/ai)
 export const aiViewRouter = Router();
 aiViewRouter.get('/', (_req: Request, res: Response) => {
-  res.render('ai/index');
+  res.sendFile(path.join(process.cwd(), 'public', 'ai', 'index.html'));
 });

@@ -14,7 +14,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const historyEmpty = document.getElementById('history-empty');
   const reloadHistoryBtn = document.getElementById('reload-history-btn');
 
-  const MAX_LENGTH = 1000;
+  const MAX_LENGTH = 2000;
   let isSubmitting = false;
 
   // 文字数カウント更新

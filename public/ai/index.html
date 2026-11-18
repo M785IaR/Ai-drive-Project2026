@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI質問アシスタント</title>
+  <link rel="stylesheet" href="/ai/ai.css">
+</head>
+<body>
+  <div class="container">
+    <header class="header">
+      <h1>AI質問アシスタント</h1>
+      <nav>
+        <a href="/" class="nav-link">TOPへ戻る</a>
+      </nav>
+    </header>
+
+    <main>
+      <!-- 質問入力フォーム -->
+      <section class="card">
+        <h2>新しい質問をする</h2>
+        <form id="ai-ask-form" aria-busy="false" novalidate>
+          <div class="form-group">
+            <label for="prompt-input">質問内容（1〜2,000文字）</label>
+            <textarea
+              id="prompt-input"
+              name="prompt"
+              rows="4"
+              maxlength="4000"
+              placeholder="AIに聞きたいことを入力してください..."
+              disabled
+            ></textarea>
+            <div class="char-counter">
+              <span id="char-count">0</span> / 2000 文字
+            </div>
+          </div>
+
+          <!-- 送信時エラー・案内表示エリア -->
+          <div id="ask-error" class="alert alert-error hidden" role="alert"></div>
+
+          <!-- 送信中待機表示 -->
+          <div id="ask-status" class="loading-text hidden" aria-live="polite">
+            AIに問い合わせ中です。しばらくお待ちください...
+          </div>
+
+          <div class="form-actions">
+            <button type="submit" id="submit-btn" class="btn btn-primary" disabled>
+              質問を送信する
+            </button>
+          </div>
+        </form>
+      </section>
+
+      <!-- 最新回答表示エリア -->
+      <section id="latest-answer-section" class="card hidden" aria-live="polite">
+        <h2>AIからの回答</h2>
+        <div class="answer-box">
+          <p class="question-preview"><strong>質問：</strong><span id="latest-prompt"></span></p>
+          <hr>
+          <div id="latest-response" class="response-text"></div>
+        </div>
+      </section>
+
+      <!-- 過去の履歴一覧 -->
+      <section class="card" aria-live="polite">
+        <div class="history-header">
+          <h2>最近の質問履歴（最新20件）</h2>
+        </div>
+
+        <!-- 取得中表示 -->
+        <div id="history-loading" class="loading-text">履歴を読み込み中...</div>
+
+        <!-- 取得失敗表示（0件と明確に区別） -->
+        <div id="history-error" class="alert alert-error hidden" role="alert"></div>
+
+        <!-- 0件時の正常表示 -->
+        <div id="history-empty" class="empty-text hidden">履歴はまだありません。</div>
+
+        <!-- 履歴リスト -->
+        <ul id="history-list" class="history-list"></ul>
+      </section>
+    </main>
+  </div>
+
+  <script src="/ai/app.js" defer></script>
+</body>
+</html>
