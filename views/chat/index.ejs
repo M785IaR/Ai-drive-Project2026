@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>リアルタイムチャット</title>
+  <link rel="stylesheet" href="/chat/chat.css" />
+</head>
+<body
+  data-room-id="<%= roomId %>"
+  data-member-token="<%= memberToken %>"
+  data-is-full="<%= isFull %>"
+>
+  <main class="chat-container">
+    <header class="chat-header">
+      <div>
+        <h1>リアルタイムチャット（ルーム: <%= roomId %>）</h1>
+        <p id="presence-badge" class="chat-presence">
+          現在の参加人数: <%= memberCount %> / <%= maxMembers %> 人
+        </p>
+      </div>
+      <nav>
+        <a href="/">TOPへ戻る</a>
+      </nav>
+    </header>
+
+    <% if (isFull) { %>
+      <section id="full-notice" class="chat-full-box" role="alert">
+        <h2>現在満席のため入室できません</h2>
+        <p>このチャットルームは定員（最大 <%= maxMembers %> 名）に達しています。空きが出るまで履歴の閲覧・投稿はできません。</p>
+        <button type="button" id="retry-btn" class="chat-btn">空き状況を再確認する</button>
+      </section>
+    <% } else { %>
+      <section id="full-notice" class="chat-full-box" role="alert" hidden>
+        <h2>現在満席のため入室できません</h2>
+        <p>このチャットルームは定員（最大 <%= maxMembers %> 名）に達しています。空きが出るまで履歴の閲覧・投稿はできません。</p>
+        <button type="button" id="retry-btn" class="chat-btn">空き状況を再確認する</button>
+      </section>
+
+      <div id="chat-main-area">
+        <p id="connection-status" class="chat-status">接続待機中...</p>
+        <div id="chat-error" class="chat-error" role="alert" hidden></div>
+
+        <section class="chat-messages-box" aria-label="チャット履歴">
+          <p id="messages-empty" class="chat-empty">まだメッセージはありません。</p>
+          <ul id="messages-list" class="chat-messages-list"></ul>
+        </section>
+
+        <form id="chat-form" class="chat-form" novalidate>
+          <div class="chat-field">
+            <label for="user-name-input">ユーザー名（1〜20文字）</label>
+            <input
+              type="text"
+              id="user-name-input"
+              name="userName"
+              maxlength="40"
+              placeholder="例：太郎"
+              autocomplete="off"
+            />
+          </div>
+
+          <div class="chat-field">
+            <label for="message-input">コメント（1〜500文字）</label>
+            <textarea
+              id="message-input"
+              name="message"
+              rows="3"
+              placeholder="メッセージを入力してください..."
+            ></textarea>
+          </div>
+
+          <div class="chat-actions">
+            <span id="char-counter" class="chat-counter">0 / 500 文字</span>
+            <button type="submit" id="send-btn" class="chat-btn">送信する</button>
+          </div>
+        </form>
+      </div>
+    <% } %>
+  </main>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="/chat/chat.js" defer></script>
+</body>
+</html>

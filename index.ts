@@ -4,6 +4,9 @@ import { pool } from './db'; // db.tsで作成したNeonへの接続を利用
 import todoRouter from './src/apps/todo/todoRouter'; // Todo用ルーター
 import { aiRouter, aiViewRouter } from './src/apps/ai/aiRouter';
 import { aiV2Router } from './src/apps/ai/v2/aiV2Router';
+import http from 'http';
+import { chatViewRouter, chatApiRouter } from './src/apps/chat/chatRouter';
+import { initChatSocket } from './src/apps/chat/chatService';
 const app = express();
 const port: number = process.env.PORT ? parseInt(process.env.PORT, 10) : 3000;
 
@@ -65,6 +68,8 @@ app.get(['/ai/v2', '/ai/v2/'], (_req: Request, res: Response) => {
 });
 app.use('/api/ai', aiRouter);
 app.use('/api/ai/v2', aiV2Router);
+app.use('/chat', chatViewRouter);
+app.use('/api/chat', chatApiRouter);
 
 // ------------------------------
 // エラーハンドリング
@@ -96,8 +101,11 @@ app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
 // ------------------------------
 // サーバー起動
 // ------------------------------
+const httpServer = http.createServer(app);
+initChatSocket(httpServer);
+
 if (process.env.NODE_ENV !== 'test') {
-  app.listen(port, (): void => {
+  httpServer.listen(port, (): void => {
     console.log(`Server started: http://localhost:${port}`);
   });
 }
