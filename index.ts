@@ -3,6 +3,7 @@ import path from 'path';
 import { pool } from './db'; // db.tsで作成したNeonへの接続を利用
 import todoRouter from './src/apps/todo/todoRouter'; // Todo用ルーター
 import { aiRouter, aiViewRouter } from './src/apps/ai/aiRouter';
+import { aiV2Router } from './src/apps/ai/v2/aiV2Router';
 const app = express();
 const port: number = process.env.PORT ? parseInt(process.env.PORT, 10) : 3000;
 
@@ -59,7 +60,11 @@ app.use('/', todoRouter);
 // 新規追加：AI機能のルーティング
 // ------------------------------
 app.use('/ai', aiViewRouter);
+app.get(['/ai/v2', '/ai/v2/'], (_req: Request, res: Response) => {
+  res.sendFile(path.join(process.cwd(), 'public', 'ai', 'v2', 'index.html'));
+});
 app.use('/api/ai', aiRouter);
+app.use('/api/ai/v2', aiV2Router);
 
 // ------------------------------
 // エラーハンドリング

@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI質問アシスタント V2</title>
+  <link rel="stylesheet" href="/ai/v2/ai-v2.css" />
+</head>
+<body>
+  <header class="v2-header">
+    <div class="v2-header-inner">
+      <h1 class="v2-title">AI質問アシスタント V2</h1>
+      <nav class="v2-nav" aria-label="ページ移動">
+        <a href="/ai">V1（単発質問）へ</a>
+        <a href="/">TOPへ戻る</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="v2-container">
+    <!-- 左ペイン：新規会話作成・会話一覧 -->
+    <aside class="v2-sidebar" aria-label="会話管理">
+      <section class="v2-panel">
+        <h2 class="v2-panel-title">新しい会話を作成</h2>
+        <form id="create-conversation-form" class="v2-create-form" novalidate>
+          <label for="conversation-title-input" class="v2-label">
+            会話名（1〜50文字）
+          </label>
+          <input
+            type="text"
+            id="conversation-title-input"
+            name="title"
+            class="v2-input"
+            placeholder="例：旅行計画の相談"
+            maxlength="100"
+            autocomplete="off"
+          />
+          <button type="submit" id="create-conversation-btn" class="v2-btn v2-btn-secondary">
+            会話を作成
+          </button>
+        </form>
+      </section>
+
+      <section class="v2-panel v2-list-panel">
+        <div class="v2-list-header">
+          <h2 class="v2-panel-title">会話一覧</h2>
+          <button type="button" id="reload-conversations-btn" class="v2-btn-link">
+            再読込
+          </button>
+        </div>
+        <p id="conversation-list-empty" class="v2-empty-text" hidden>
+          会話はまだありません。新しい会話を作成してください。
+        </p>
+        <ul id="conversation-list" class="v2-conversation-list" aria-label="保存済み会話一覧"></ul>
+      </section>
+    </aside>
+
+    <!-- 右ペイン：選択中会話の履歴・質問送信 -->
+    <section class="v2-main" aria-label="会話エリア">
+      <div class="v2-chat-header">
+        <h2 id="active-conversation-title" class="v2-chat-title">会話が選択されていません</h2>
+        <span id="active-conversation-meta" class="v2-chat-meta"></span>
+      </div>
+
+      <!-- ステータス・エラーメッセージ表示 -->
+      <div id="status-message" class="v2-status" aria-live="polite" hidden></div>
+      <div id="error-message" class="v2-error" role="alert" hidden></div>
+
+      <!-- 履歴表示エリア（最新20往復を古い順に表示） -->
+      <div id="turns-container" class="v2-turns-container">
+        <p id="turns-empty-message" class="v2-empty-text">
+          左の一覧から会話を選択するか、新しい会話を作成してください。
+        </p>
+        <div id="turns-list" class="v2-turns-list"></div>
+      </div>
+
+      <!-- 質問送信フォーム -->
+      <form id="ask-form" class="v2-ask-form" novalidate>
+        <label for="prompt-input" class="v2-label">
+          質問内容（前後空白を除き 1〜2,000文字 / 直近5往復の文脈を引き継ぎます）
+        </label>
+        <textarea
+          id="prompt-input"
+          name="prompt"
+          class="v2-textarea"
+          rows="4"
+          placeholder="会話を選択してから質問を入力してください..."
+          disabled
+        ></textarea>
+        <div class="v2-ask-actions">
+          <span id="char-counter" class="v2-char-counter">0 / 2000 文字</span>
+          <button type="submit" id="ask-submit-btn" class="v2-btn v2-btn-primary" disabled>
+            質問を送信する
+          </button>
+        </div>
+      </form>
+    </section>
+  </main>
+
+  <script src="/ai/v2/app.js" defer></script>
+</body>
+</html>
