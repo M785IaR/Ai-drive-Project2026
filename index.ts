@@ -1,31 +1,31 @@
-import express, { Request, Response } from 'express';
+import express, { Request, Response, NextFunction } from 'express';
 import path from 'path';
-import { pool } from './db'; // db.tsで作成したNeonへの接続を利用する
-import todoRouter from './src/apps/todo/todoRouter'; // ★ Todo用ルーターをインポート
-
-const app = express(); // Expressアプリケーションを作成
-const port: number = 3000; // ローカルで使用するポート番号
+import { pool } from './db'; // db.tsで作成したNeonへの接続を利用
+import todoRouter from './src/apps/todo/todoRouter'; // Todo用ルーター
+import { aiRouter, aiViewRouter } from './src/apps/ai/aiRouter';
+const app = express();
+const port: number = process.env.PORT ? parseInt(process.env.PORT, 10) : 3000;
 
 // ------------------------------
 // Expressの基本設定
 // ------------------------------
-app.use(express.json()); // ★ JSONデータを受け取れるようにする（Fetch/API通信に必須）
-app.use(express.urlencoded({ extended: true })); // フォームから送信されたデータを受け取れるようにする
-app.use(express.static(path.join(process.cwd(), 'public'))); // CSSや画像などの静的ファイルを公開する
-app.set('view engine', 'ejs'); // テンプレートエンジンにEJSを設定
-app.set('views', path.join(process.cwd(), 'views')); // EJSファイルを保存するフォルダーを指定
+app.use(express.json()); // JSONデータを受け取れるように設定
+app.use(express.urlencoded({ extended: true })); // フォームデータを受け取れるように設定
+app.use(express.static(path.join(process.cwd(), 'public'))); // 静的ファイルの公開
+app.set('view engine', 'ejs'); // EJSの設定
+app.set('views', path.join(process.cwd(), 'views'));
 
 // ------------------------------
-// ルーティング
+// 既存のルーティング
 // ------------------------------
 
-// 「/」にアクセスされたときの処理
+// TOPページ
 app.get('/', (req: Request, res: Response): void => {
   res.render('index');
 });
 
-// Neonへの接続をSELECT文で確認する
-app.get('/api/db-check', async (_req, res) => {
+// Neon DB 接続確認API
+app.get('/api/db-check', async (_req: Request, res: Response): Promise<void> => {
   try {
     const result = await pool.query('SELECT 1 AS connection_test');
     res.json({
@@ -38,9 +38,9 @@ app.get('/api/db-check', async (_req, res) => {
   }
 });
 
+// DBサンプルページ
 type Product = { id: number; name: string; price: number };
-
-app.get('/db-sample', async (_req, res) => {
+app.get('/db-sample', async (_req: Request, res: Response): Promise<void> => {
   try {
     const result = await pool.query<Product>(
       'SELECT id, name, price FROM products ORDER BY id'
@@ -52,12 +52,49 @@ app.get('/db-sample', async (_req, res) => {
   }
 });
 
-// ★ Todo機能のルートを登録 (/todo と /api/v1/todos が有効化されます)
+// Todo機能のルート
 app.use('/', todoRouter);
+
+// ------------------------------
+// 新規追加：AI機能のルーティング
+// ------------------------------
+app.use('/ai', aiViewRouter);
+app.use('/api/ai', aiRouter);
+
+// ------------------------------
+// エラーハンドリング
+// ------------------------------
+
+// 汎用404ハンドラー（どのルートにもマッチしなかった場合）
+app.use((req: Request, res: Response) => {
+  res.status(404).json({
+    success: false,
+    error: {
+      code: 'NOT_FOUND',
+      message: 'リクエストされたリソースが見つかりません。',
+    },
+  });
+});
+
+// グローバルエラーハンドラー
+app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
+  console.error('[Global Error Handler]:', err);
+  res.status(500).json({
+    success: false,
+    error: {
+      code: 'INTERNAL_SERVER_ERROR',
+      message: 'サーバー内部でエラーが発生しました。',
+    },
+  });
+});
 
 // ------------------------------
 // サーバー起動
 // ------------------------------
-app.listen(port, (): void => {
-  console.log(`Server started: http://localhost:${port}`);
-});
+if (process.env.NODE_ENV !== 'test') {
+  app.listen(port, (): void => {
+    console.log(`Server started: http://localhost:${port}`);
+  });
+}
+
+export default app;
