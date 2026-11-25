@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { AiModel } from './aiModel';
 import { AiService, AiServiceError } from './aiService';
 
+const MIN_PROMPT_LENGTH = 1;
 const MAX_PROMPT_LENGTH = 2000;
 
 export class AiController {
@@ -23,9 +24,17 @@ export class AiController {
   }
 
   /**
+   * JSONパーサーより先に実行するデモ停止ガードミドルウェア
+   */
+  static demoGuard(_req: Request, res: Response, next: NextFunction): void {
+    if (!AiController.ensureDemoEnabled(res)) return;
+    next();
+  }
+
+  /**
    * ヘルスチェック
    */
-  static async healthCheck(req: Request, res: Response): Promise<void> {
+  static async healthCheck(_req: Request, res: Response): Promise<void> {
     res.status(200).json({
       success: true,
       message: 'AI Module is operational',
@@ -35,7 +44,7 @@ export class AiController {
   /**
    * 最新のQA履歴一覧を取得する (GET /api/ai/history, 最大20件)
    */
-  static async getHistory(req: Request, res: Response, next: NextFunction): Promise<void> {
+  static async getHistory(_req: Request, res: Response, next: NextFunction): Promise<void> {
     if (!AiController.ensureDemoEnabled(res)) return;
 
     try {
@@ -60,25 +69,28 @@ export class AiController {
     try {
       const prompt = req.body?.prompt;
 
-      // 入力検証（バリデーション）: 空文字・型・文字数(前後空白除去後 1〜2,000文字)
-      if (typeof prompt !== 'string' || prompt.trim().length === 0) {
+      // 型検証
+      if (typeof prompt !== 'string') {
         res.status(400).json({
           success: false,
           error: {
             code: 'INVALID_INPUT',
-            message: '質問内容（prompt）を1文字以上で入力してください。',
+            message: '質問内容（prompt）は文字列で入力してください。',
           },
         });
         return;
       }
 
+      // 前後空白除去後、Unicodeコードポイント数で 1〜2,000文字を検証
       const trimmedPrompt = prompt.trim();
-      if (trimmedPrompt.length > MAX_PROMPT_LENGTH) {
+      const codePointLength = Array.from(trimmedPrompt).length;
+
+      if (codePointLength < MIN_PROMPT_LENGTH || codePointLength > MAX_PROMPT_LENGTH) {
         res.status(400).json({
           success: false,
           error: {
             code: 'INVALID_INPUT',
-            message: `質問内容は${MAX_PROMPT_LENGTH}文字以内で入力してください。`,
+            message: `質問内容は${MIN_PROMPT_LENGTH}〜${MAX_PROMPT_LENGTH}文字で入力してください。`,
           },
         });
         return;

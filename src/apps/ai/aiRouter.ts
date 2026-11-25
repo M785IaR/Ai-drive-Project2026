@@ -1,4 +1,4 @@
-import { Router, Request, Response } from 'express';
+import express, { Router, Request, Response } from 'express';
 import path from 'path';
 import { AiController } from './aiController';
 
@@ -8,10 +8,10 @@ const router = Router();
 router.get('/health', AiController.healthCheck);
 
 // 履歴取得API (GET /api/ai/history, 最新20件)
-router.get('/history', AiController.getHistory);
+router.get('/history', AiController.demoGuard, AiController.getHistory);
 
-// 質問送信API (POST /api/ai/ask)
-router.post('/ask', AiController.postAsk);
+// 質問送信API (POST /api/ai/ask, デモ停止判定 → 16KiB JSON制限 → コントローラー)
+router.post('/ask', AiController.demoGuard, express.json({ limit: '16kb' }), AiController.postAsk);
 
 export const aiRouter = router;
 
